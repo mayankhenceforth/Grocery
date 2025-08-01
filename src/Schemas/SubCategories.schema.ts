@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
-export class SubCategorie extends Document {
+export class SubCategorie  {
   @Prop({ required: true })
   Name: string;
 

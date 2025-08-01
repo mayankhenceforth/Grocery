@@ -4,7 +4,7 @@ import { Document } from "mongoose"
 
 @Schema({timestamps:true})
 
-export class Categorie extends Document {
+export class Categorie  {
     @Prop({ required: true })
     Name: string
 
