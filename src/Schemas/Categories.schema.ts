@@ -11,8 +11,7 @@ export class Categorie  {
     @Prop({ required: true })
     Image: string
 
-    @Prop({ default:[]})
-    BannerImage: string[]
+    
 }
 
 

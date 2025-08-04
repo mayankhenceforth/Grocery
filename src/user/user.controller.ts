@@ -4,21 +4,28 @@ import {
   Get,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiQuery,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
-import { CreateUserDto } from './dto/User.dto';
+import { CreateUserDto, uploadImage } from './dto/User.dto';
 import { User } from 'src/Schemas/User.schema';
 import { UserService } from './user.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerConfig } from 'src/config/multer.config';
+import { PassThrough } from 'stream';
 
-@ApiTags('User') 
+@ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Post('create')
   @ApiOperation({ summary: 'Create a new user' })
@@ -121,4 +128,35 @@ export class UserController {
     const user = await this.userService.getUserByName(name);
     return user || { message: 'User not found' };
   }
+
+
+  @Post('image')
+@ApiOperation({ summary: 'Upload user image with data' })
+@ApiConsumes('multipart/form-data')
+@UseInterceptors(FileInterceptor('ProfilePicture', multerConfig))
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      Email: {
+        type: 'string',
+        example: 'john@example.com',
+      },
+      profilePicture: {
+        type: 'string',
+        format: 'binary',
+      },
+    },
+  },
+})
+
+async uploadImage(
+  @Body() dto: uploadImage,
+  @UploadedFile() file: Express.Multer.File,
+) {
+  console.log('📥 DTO:', dto);
+  console.log('📤 FILE:', file?.originalname);
+  return this.userService.uploadImage(dto, file);
+}
+
 }

@@ -51,6 +51,17 @@ export class CreateUserDto {
   role?: string;
 }
 
+export class uploadImage {
+
+  @ApiProperty({ example: 'john@example.com', description: 'Valid email address' })
+  Email: string;
+
+  @ApiProperty({ example: 'https://cdn.example.com/image.jpg', required: false, description: 'Optional profile picture URL' })
+  @IsString()
+  @IsOptional()
+  ProfilePicture?: string;
+}
+
 export class LoginDto {
   @ApiProperty({ example: 'john@example.com', description: 'Registered email address' })
   @IsEmail({}, { message: 'Email must be valid.' })
