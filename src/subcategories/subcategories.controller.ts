@@ -3,7 +3,7 @@ import { SubcategoriesService } from './subcategories.service';
 import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
 import { UpdateSubcategoryDto } from './dto/update-subcategory.dto';
 import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
-import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { AnyFilesInterceptor, FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('subcategories')
 export class SubcategoriesController {
@@ -11,11 +11,11 @@ export class SubcategoriesController {
 
   @Post()
   @ApiOperation({ summary: 'Create subcategory with images' })
-  @ApiConsumes('multipart/form-data')
+  @ApiConsumes('multipart/form-data') 
   @UseInterceptors(
     FileFieldsInterceptor([
-      { name: 'Image', maxCount: 1 },
-      { name: 'Banners', maxCount: 10 },
+      { name: 'image', maxCount: 1 },
+      { name: 'banners', maxCount: 10 },
     ]),
   )
   @ApiBody({
@@ -29,7 +29,7 @@ export class SubcategoriesController {
         },
         image: {
           type: 'string',
-          format: 'binary',
+          format: 'binary', 
         },
         banners: {
           type: 'array',
@@ -44,15 +44,22 @@ export class SubcategoriesController {
   })
   async create(
     @Body() createSubcategoryDto: CreateSubcategoryDto,
-    @UploadedFile() image: Express.Multer.File,
-    @UploadedFiles() banners: Express.Multer.File[],
+    @UploadedFiles()
+    files: {
+      image?: Express.Multer.File[];
+      banners?: Express.Multer.File[];
+    },
   ) {
+    const image = files?.image?.[0];
+    const banners = files?.banners || [];
+
     if (!image) {
       throw new BadRequestException('Sub Category image is required');
     }
-    console.log(createSubcategoryDto)
+
     return this.subcategoriesService.create(createSubcategoryDto, image, banners);
   }
+
 
   @Get()
   findAll() {
@@ -64,13 +71,58 @@ export class SubcategoriesController {
     return this.subcategoriesService.findOne(id);
   }
 
+
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSubcategoryDto: UpdateSubcategoryDto) {
-    return this.subcategoriesService.update(+id, updateSubcategoryDto);
+  @UseInterceptors(
+    AnyFilesInterceptor({
+      limits: {
+        files: 5,
+      },
+    })
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Update Subcategory',
+    schema: {
+      type: 'object',
+      properties: {
+        Name: { type: 'string', example: 'Mobile Phones' },
+        Categories: {
+          type: 'array',
+          items: { type: 'string' },
+          example: ['688de98d9bd7ef9b016eea22'],
+        },
+        image: { type: 'string', format: 'binary' },
+        banners: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+      },
+    },
+  })
+  async update(
+    @Param('id') id: string,
+    @Body() updateSubcategoryDto: UpdateSubcategoryDto,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    const image = files?.find((file) => file.fieldname === 'image') || null;
+    const banners = files?.filter((file) => file.fieldname === 'banners') || [];
+
+    return this.subcategoriesService.update(id, updateSubcategoryDto, image, banners);
   }
+
+
+ @Patch('disable/:id')
+async disable(@Param('id') id: string) {
+  return this.subcategoriesService.disable(id);
+}
+
 
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.subcategoriesService.remove(id);
   }
+
+  
 }
+

@@ -44,6 +44,8 @@ export class product {
     @Prop({ type: [Object], default: [] })
     MoreFields: any[];
 
+    @Prop({ default: true })
+    isActive: boolean
 }
 export type ProductDocument = product & Document
 

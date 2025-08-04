@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
-export class SubCategorie  {
+export class SubCategorie {
   @Prop({ required: true })
   Name: string;
 
@@ -14,10 +14,13 @@ export class SubCategorie  {
     ref: 'Categorie',
     required: true,
   })
-  Categories: Types.ObjectId[]; 
+  Categories: Types.ObjectId[];
 
   @Prop({ default: [] })
   BannerImage: string[];
+
+  @Prop({ default: true })
+  isActive: boolean
 }
 
 export type SubCategorieDocument = SubCategorie & Document;

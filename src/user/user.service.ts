@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from 'src/Schemas/User.schema';
+import { User, UserDocument } from '../Schemas/User.schema';
 import { CreateUserDto, uploadImage } from './dto/User.dto';
 import * as bcrypt from 'bcrypt'
 import { uploadToCloudinary } from 'src/comman/utils/upload.utils';
@@ -37,7 +37,7 @@ export class UserService {
     }
 
     async getUserById(id: string): Promise<User[]> {
-        return this.userModel.find({ _id: id }).exec();
+        return this.userModel.find({ _id: id }).populate('Address Order CartProduct').exec();
     }
     async getUserByName(name: string): Promise<User[]> {
         return this.userModel.find({ Name: name }).exec();
@@ -47,19 +47,7 @@ export class UserService {
         let imageUrl = '';
         console.log(dto)
 
-        // if (file) {
-        //     const uploadedImage = await uploadToCloudinary(file, 'user-profile');
-        //     imageUrl = uploadedImage.secure_url;
-        // }
-
-
-
-        // const newUser = new this.userModel({
-        //   ...dto,
-        //   profilePicture: imageUrl,
-        // });
-
-        // return newUser.save();
+      
     }
 }
 

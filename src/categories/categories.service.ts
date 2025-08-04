@@ -39,8 +39,9 @@ export class CategoriesService {
   }
 
   async findAll() {
-    return await this.categorieModel.find();
-  }
+  return this.categorieModel.find()
+}
+
 
   async findOne(id: string) {
     return await this.categorieModel.findById(id);
@@ -82,6 +83,14 @@ export class CategoriesService {
       message: 'Category updated successfully',
       data: updatedCategory,
     };
+  }
+
+  async disable(id: string) {
+    return this.categorieModel.findByIdAndUpdate(
+      id,
+      { isActive: false },
+      { new: true }
+    );
   }
 
 
